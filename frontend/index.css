@@ -1,0 +1,666 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ──────────────────────────────────────────────────────────────
+   Design tokens — Nexora Engine (Light brand-blue theme)
+
+   Palette ported from the v2.x admin_old.css so the React shell
+   matches the brand the user already trusts. Off-white page,
+   white cards, brand blue #0252FA for primary CTAs and active
+   nav, brand amber #F39A09 for engine-on indicators, brand
+   slate #435162 for body text.
+
+   Token *names* are kept identical so every component picks up
+   the colors automatically.
+   ────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* Surfaces — tonal warm neutrals. Subtle bg is now a NEUTRAL warm gray,
+       NOT a blue tint. Blue is reserved for primary actions only so the
+       whole admin doesn't feel monotonous in brand color. */
+    --np-bg-page:           #F8F9FB;   /* slightly warmer off-white */
+    --np-bg-card:           #FFFFFF;
+    --np-bg-subtle:         #F1F3F7;   /* warm gray tile bg (was blue tint) */
+    --np-bg-sunken:         #ECEFF3;   /* one shade deeper for nested wells */
+    --np-bg-sidebar:        #FFFFFF;
+    --np-bg-sidebar-hover:  #F8F9FB;
+    --np-bg-sidebar-active: rgba(255,255,255,0.10);   /* on dark sidebar */
+
+    /* Brand — used for primary CTAs and the dark sidebar identity only */
+    --np-brand-primary:       #0252FA;
+    --np-brand-primary-hover: #063CE6;
+    --np-brand-primary-dim:   #EBF0FF;   /* kept for back-compat */
+    --np-blue-accent:         #56A2FA;
+
+    /* Dark sidebar bg used by Layout */
+    --np-sidebar-bg:        #FFFFFF;
+    --np-sidebar-dark-bg:   #011E80;
+
+    /* Warm neutral scale — secondary surfaces and text live here.
+       This is the replacement for "let's tint it blue". */
+    --np-neutral-50:    #F8F9FB;
+    --np-neutral-100:   #F1F3F7;
+    --np-neutral-200:   #E4E7EC;
+    --np-neutral-300:   #CFD3DA;
+    --np-neutral-400:   #98A2B3;
+    --np-neutral-500:   #667085;
+    --np-neutral-600:   #475467;
+    --np-neutral-700:   #344054;
+    --np-neutral-800:   #1D2939;
+    --np-neutral-900:   #101828;
+
+    /* Functional / status accents — used for state, not for branding */
+    --np-success:       #16A34A;
+    --np-success-bg:    #ECFDF5;
+    --np-success-text:  #047857;
+    --np-warning:       #F39A09;
+    --np-warning-bg:    #FFFBEB;
+    --np-warning-text:  #92400E;
+    --np-danger:        #E24B4A;
+    --np-danger-bg:     #FEF2F2;
+    --np-danger-text:   #B91C1C;
+    --np-info:          #0252FA;
+    --np-info-bg:       #EFF6FF;
+    --np-info-text:     #1E40AF;
+    --np-violet:        #7F77DD;
+    --np-violet-bg:     #F3F2FE;
+    --np-violet-text:   #4338CA;
+
+    /* Legacy accent aliases — kept for back-compat */
+    --np-accent-cyan:   var(--np-brand-primary);
+    --np-accent-lime:   var(--np-success);
+    --np-accent-amber:  var(--np-warning);
+    --np-accent-red:    var(--np-danger);
+    --np-accent-violet: var(--np-violet);
+
+    /* Text — warm neutral hierarchy on light surfaces */
+    --np-text-primary:   var(--np-neutral-900);
+    --np-text-secondary: var(--np-neutral-600);
+    --np-text-muted:     var(--np-neutral-500);
+    --np-text-on-dark:   #FFFFFF;
+    --np-text-on-dark-muted: rgba(255, 255, 255, 0.72);
+    --np-text: var(--np-neutral-900);
+
+    /* Borders — warm neutral hairlines */
+    --np-border:       var(--np-neutral-200);
+    --np-border-soft:  var(--np-neutral-100);
+    --np-border-dark:  rgba(255, 255, 255, 0.12);
+
+    /* Shadows — soft neutral tint (was blue-tinted, contributed to "blue everywhere") */
+    --np-shadow-card:       0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.06);
+    --np-shadow-card-hover: 0 4px 12px -2px rgb(16 24 40 / 0.08), 0 2px 6px -1px rgb(16 24 40 / 0.05);
+    --np-shadow-modal:      0 18px 45px rgb(16 24 40 / 0.12), 0 8px 24px -6px rgb(16 24 40 / 0.10);
+
+    /* Layout */
+    --np-sidebar-w: 240px;
+    --np-sidebar-collapsed-w: 72px;
+    --np-right-rail-w: 320px;
+    --np-radius-sm: 10px;
+    --np-radius-md: 12px;
+    --np-radius-lg: 14px;
+    --np-radius-xl: 20px;       /* matches admin_old.css --ncx-radius */
+    --np-transition: 160ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Mono font for numeric values */
+    --np-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--np-bg-page);
+    color: var(--np-text-primary);
+  }
+
+  h1, h2, h3, h4 {
+    font-feature-settings: 'cv01', 'cv02', 'cv03', 'ss01';
+    letter-spacing: -0.018em;
+    font-weight: 700;
+  }
+
+  /* Only opt-in mono — code blocks and the explicit .np-mono helper.
+     `.tabular-nums` keeps the standard system font but with tabular figures
+     so columns line up without looking like a terminal. */
+  code,
+  .np-mono {
+    font-family: var(--np-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Components — mirror Nexora Pulse/Media component contract
+   ────────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* Card — light, white, neutral shadow */
+  .np-card {
+    background: var(--np-bg-card);
+    border-radius: var(--np-radius-lg);
+    border: 1px solid var(--np-border);
+    box-shadow: var(--np-shadow-card);
+  }
+  .np-card-hover {
+    @apply np-card transition-all duration-200;
+  }
+  .np-card-hover:hover {
+    box-shadow: var(--np-shadow-card-hover);
+    border-color: var(--np-neutral-300);
+    transform: translateY(-1px);
+  }
+
+  /* PRIMARY — the ONLY blue button. Reserved for the main action on a
+     surface. Don't use more than 1–2 of these per screen. */
+  .np-btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
+           transition-all duration-[160ms] select-none
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none;
+    color: #FFFFFF !important;
+    text-decoration: none !important;
+    background: linear-gradient(135deg, var(--np-brand-primary) 0%, var(--np-brand-primary-hover) 100%);
+    border: 1px solid transparent;
+    box-shadow: 0 4px 12px 0 rgb(6 60 230 / 0.18);
+    letter-spacing: -0.01em;
+  }
+  .np-btn-primary svg { color: #FFFFFF !important; }
+  .np-btn-primary:hover:not(:disabled),
+  .np-btn-primary:focus:not(:disabled) {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, var(--np-brand-primary-hover) 0%, #0430C4 100%);
+    box-shadow: 0 6px 18px 0 rgb(6 60 230 / 0.28);
+    transform: translateY(-1px);
+  }
+  .np-btn-primary:hover:not(:disabled) svg,
+  .np-btn-primary:focus:not(:disabled) svg { color: #FFFFFF !important; }
+  .np-btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px 0 rgb(6 60 230 / 0.20);
+  }
+
+  /* SUCCESS — green action. Same shape as primary but green, used where a blue
+     primary button would clash with an adjacent blue surface (e.g. the
+     "Rebuild all" action inside the brand-blue Mirror Build Control rail). */
+  .np-btn-success {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
+           transition-all duration-[160ms] select-none
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none;
+    color: #FFFFFF !important;
+    text-decoration: none !important;
+    background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+    border: 1px solid transparent;
+    box-shadow: 0 4px 12px 0 rgb(22 163 74 / 0.22);
+  }
+  .np-btn-success svg { color: #FFFFFF !important; }
+  .np-btn-success:hover:not(:disabled),
+  .np-btn-success:focus:not(:disabled) {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #15803D 0%, #126932 100%);
+    box-shadow: 0 6px 18px 0 rgb(22 163 74 / 0.32);
+    transform: translateY(-1px);
+  }
+  .np-btn-success:hover:not(:disabled) svg,
+  .np-btn-success:focus:not(:disabled) svg { color: #FFFFFF !important; }
+  .np-btn-success:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px 0 rgb(22 163 74 / 0.20);
+  }
+
+  /* SECONDARY — warm neutral. White button with a hairline border + slate
+     text. This is the workhorse button on most surfaces. Replaces the
+     old "everything is blue tinted" treatment. */
+  .np-btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
+           transition-all duration-[160ms] select-none
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    color: var(--np-neutral-700) !important;
+    text-decoration: none !important;
+    background: #FFFFFF;
+    border: 1px solid var(--np-neutral-300);
+    letter-spacing: -0.01em;
+  }
+  .np-btn-secondary svg { color: var(--np-neutral-500); }
+  .np-btn-secondary:hover:not(:disabled),
+  .np-btn-secondary:focus:not(:disabled) {
+    color: var(--np-neutral-900) !important;
+    background: var(--np-bg-subtle);
+    border-color: var(--np-neutral-400);
+  }
+  .np-btn-secondary:hover:not(:disabled) svg { color: var(--np-neutral-700); }
+
+  /* GHOST — text-only button for tertiary actions inside cards.
+     No background, no border. Hover reveals a subtle warm tile. */
+  .np-btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium
+           transition-all duration-150 select-none;
+    color: var(--np-text-secondary);
+  }
+  .np-btn-ghost:hover {
+    color: var(--np-text-primary);
+    background: var(--np-bg-subtle);
+  }
+
+  .np-btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
+           transition-all duration-150 select-none
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    color: var(--np-accent-red) !important;
+    background: #FFFFFF;
+    border: 1px solid rgb(226 75 74 / 0.30);
+  }
+  .np-btn-danger:hover:not(:disabled) {
+    background: rgb(226 75 74 / 0.06);
+    border-color: rgb(226 75 74 / 0.55);
+  }
+
+  /* Badges */
+  /* Badge — soft pill, brand-blue tint by default (matches admin_old .ncx-badge) */
+  .np-badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+    letter-spacing: 0.01em;
+  }
+  .np-badge-critical {
+    @apply np-badge;
+    background: rgb(226 75 74 / 0.10);
+    color: #A32D2D;
+    box-shadow: inset 0 0 0 1px rgb(226 75 74 / 0.25);
+  }
+  .np-badge-high {
+    @apply np-badge;
+    background: rgb(249 115 22 / 0.10);
+    color: #C2410C;
+    box-shadow: inset 0 0 0 1px rgb(249 115 22 / 0.25);
+  }
+  .np-badge-medium {
+    @apply np-badge;
+    background: rgb(243 154 9 / 0.12);
+    color: #92400E;
+    box-shadow: inset 0 0 0 1px rgb(243 154 9 / 0.30);
+  }
+  .np-badge-low {
+    @apply np-badge;
+    background: rgb(2 82 250 / 0.08);
+    color: var(--np-brand-primary);
+    box-shadow: inset 0 0 0 1px rgb(2 82 250 / 0.25);
+  }
+  .np-badge-ok {
+    @apply np-badge;
+    background: rgb(22 163 74 / 0.10);
+    color: #15803D;
+    box-shadow: inset 0 0 0 1px rgb(22 163 74 / 0.25);
+  }
+  .np-badge-pro {
+    @apply np-badge text-white;
+    background: linear-gradient(135deg, var(--np-brand-primary) 0%, var(--np-brand-primary-hover) 100%);
+    box-shadow: 0 2px 6px 0 rgb(2 82 250 / 0.30);
+    letter-spacing: 0.04em;
+  }
+
+  /* Input — light field, brand-blue focus ring */
+  .np-input {
+    @apply w-full rounded-xl
+           px-3.5 py-2.5 text-sm
+           focus:outline-none
+           transition-all duration-150;
+    background: #FFFFFF;
+    color: var(--np-text-primary);
+    border: 1px solid var(--np-border);
+    box-shadow: inset 0 1px 2px 0 rgb(15 23 42 / 0.03);
+  }
+  .np-input::placeholder { color: var(--np-text-muted); }
+  .np-input:hover:not(:focus) { border-color: #C5CCE0; }
+  .np-input:focus {
+    border-color: var(--np-brand-primary);
+    box-shadow:
+      inset 0 1px 2px 0 rgb(15 23 42 / 0.03),
+      0 0 0 3px rgb(2 82 250 / 0.15);
+  }
+
+  .np-skeleton {
+    @apply animate-pulse rounded-xl;
+    background-color: var(--np-bg-subtle);
+    background-image: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.6) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: np-shimmer 1.8s ease-in-out infinite;
+  }
+
+  .np-section-label {
+    @apply text-[11px] font-bold uppercase;
+    color: var(--np-text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* Chip — warm neutral by default. Status variants use the same shape. */
+  .np-chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold;
+    background: var(--np-bg-subtle);
+    color: var(--np-text-secondary);
+    border: 1px solid var(--np-border);
+  }
+
+  /* On-dark variants — white pills used inside the blue Mirror Build Control
+     hero (and any other dark-surfaced card). White text + tinted-white bg
+     keeps contrast premium and readable. */
+  .np-chip-on-dark {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase;
+    background: rgba(255, 255, 255, 0.16);
+    color: #FFFFFF;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(2px);
+  }
+  .np-chip-on-dark .np-status-dot { box-shadow: 0 0 0 2px rgba(255,255,255,0.20); }
+
+  /* Segmented control — for in-card toggles like Pages ↔ Mirror Files.
+     Tonal neutral background, white-on-blue active state. */
+  .np-segment {
+    @apply inline-flex p-1 rounded-xl;
+    background: var(--np-bg-subtle);
+    border: 1px solid var(--np-border);
+  }
+  .np-segment-btn {
+    @apply inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold
+           transition-all duration-150 select-none;
+    color: var(--np-text-secondary);
+  }
+  .np-segment-btn:hover:not(.np-segment-btn-active) {
+    color: var(--np-text-primary);
+  }
+  .np-segment-btn-active {
+    background: #FFFFFF;
+    color: var(--np-text-primary);
+    box-shadow: 0 1px 3px 0 rgb(16 24 40 / 0.10), 0 0 0 1px var(--np-neutral-200);
+  }
+
+  /* Progress — brand blue gradient on light track */
+  .np-progress {
+    @apply w-full h-1.5 rounded-full overflow-hidden;
+    background: var(--np-border-soft);
+  }
+  .np-progress-bar {
+    @apply h-full rounded-full transition-all duration-700 ease-out;
+    background: linear-gradient(90deg, var(--np-brand-primary), var(--np-blue-accent));
+  }
+
+  /* Sidebar nav — dark brand-blue sidebar, white pill on active */
+  .np-nav-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium
+           transition-all duration-[160ms] select-none cursor-pointer relative;
+    letter-spacing: -0.005em;
+    color: var(--np-text-on-dark);
+  }
+  .np-nav-item-active {
+    background: #FFFFFF;
+    color: var(--np-brand-primary);
+    font-weight: 700;
+    box-shadow: 0 2px 8px 0 rgb(15 23 42 / 0.10);
+  }
+  .np-nav-item-active::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: var(--np-blue-accent);
+    border-radius: 0 4px 4px 0;
+  }
+  .np-nav-item-inactive { color: var(--np-text-on-dark-muted); }
+  .np-nav-item-inactive:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+  }
+
+  .np-section-label-dark {
+    @apply text-[10px] font-bold uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.10em;
+  }
+
+  .np-tab {
+    @apply flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2
+           transition-all duration-150 -mb-px select-none;
+  }
+  .np-tab-active {
+    border-color: var(--np-brand-primary);
+    color: var(--np-brand-primary);
+  }
+  .np-tab-inactive {
+    @apply border-transparent;
+    color: var(--np-text-secondary);
+  }
+  .np-tab-inactive:hover { color: var(--np-text-primary); }
+
+  .np-table-head {
+    border-bottom: 1px solid var(--np-border);
+    background: #F7F8FA;
+  }
+  .np-table-head th {
+    @apply px-4 py-3 text-left text-xs font-bold;
+    color: var(--np-text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Search input with leading icon — use this wrapper + input combo everywhere
+     so the icon is always pixel-perfect regardless of base font size changes.
+     Usage: <div class="np-search-wrap"><SearchIcon /><input class="np-search-input" /></div> */
+  .np-search-wrap {
+    @apply relative;
+  }
+  .np-search-wrap > svg {
+    /* Icon always centred vertically, 11px from the left inner edge. The
+       width/height are forced with !important because lucide-react renders the
+       SVG with its own width="24"/height="24" attributes — without the override
+       the icon paints at 24px and collides with the placeholder text. */
+    position: absolute;
+    pointer-events: none;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--np-text-muted);
+    width: 15px !important;
+    height: 15px !important;
+    /* Ensure the SVG doesn't interfere with the input's focus ring */
+    z-index: 1;
+  }
+  .np-search-input {
+    @apply np-input text-sm;
+    /* Clear the icon (left:11px + 15px wide ≈ 26px) with comfortable breathing
+       room. !important guards against .np-input's own px-3.5 winning the cascade
+       on any build that reorders the @apply output. */
+    padding-left: 34px !important;
+    /* Default width when not inside a flex-1 container */
+    width: 14rem;
+  }
+  /* When inside a flex-1 parent, fill the available space */
+  .np-search-wrap.flex-1 .np-search-input,
+  .np-search-wrap.min-w-0 .np-search-input {
+    width: 100%;
+  }
+
+  /* Right rail (Mirror Build Control) — light card */
+  .np-rail {
+    @apply np-card overflow-hidden;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
+  }
+
+  /* Panel — kept for back-compat. Now just a card with a soft brand-blue tint. */
+  .np-panel {
+    background: var(--np-bg-card);
+    border: 1px solid var(--np-border);
+    border-radius: var(--np-radius-lg);
+    position: relative;
+  }
+  .np-panel-glow-cyan,
+  .np-panel-glow-lime,
+  .np-panel-glow-amber,
+  .np-panel-glow-red {
+    /* In the light theme these glow classes are still rendered but the
+       glow is dialed way down — a hairline ring instead of neon halo. */
+  }
+  .np-panel-glow-cyan  { box-shadow: 0 0 0 1px rgb(2 82 250 / 0.10);   }
+  .np-panel-glow-lime  { box-shadow: 0 0 0 1px rgb(22 163 74 / 0.12);  }
+  .np-panel-glow-amber { box-shadow: 0 0 0 1px rgb(243 154 9 / 0.14);  }
+  .np-panel-glow-red   { box-shadow: 0 0 0 1px rgb(226 75 74 / 0.14);  }
+
+  /* Status dot — small filled pip, brand-blue by default */
+  .np-status-dot {
+    @apply inline-block w-2 h-2 rounded-full flex-shrink-0;
+  }
+  .np-status-dot-on  { background: #16A34A; }
+  .np-status-dot-warn{ background: #F39A09; }
+  .np-status-dot-err { background: #E24B4A; }
+  .np-status-dot-info{ background: var(--np-brand-primary); }
+  .np-status-dot-off { background: #94A3B8; }
+
+  .np-status-dot-pulse {
+    animation: np-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  @keyframes np-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  @keyframes np-fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes np-scale-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes np-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(0.85); }
+  }
+
+  .np-animate-fade-in   { animation: np-fade-in 0.22s ease-out both; }
+  .np-animate-scale-in  { animation: np-scale-in 0.18s ease-out both; }
+
+  /* Wordmark gradient — brand light blue → deep blue */
+  .np-text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, var(--np-blue-accent) 0%, var(--np-brand-primary) 60%, var(--np-brand-primary-hover) 100%);
+  }
+
+  .np-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .np-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .np-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.12);
+    border-radius: 999px;
+  }
+  .np-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 23, 42, 0.22);
+  }
+  .np-scrollbar-dark::-webkit-scrollbar { width: 6px; }
+  .np-scrollbar-dark::-webkit-scrollbar-track { background: transparent; }
+  .np-scrollbar-dark::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 999px;
+  }
+  .np-scrollbar-dark::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.20);
+  }
+}
+
+/* ── WordPress admin embedding ────────────────────────────────────────
+   The React root mounts directly inside wp-admin's #wpbody-content. By
+   default that wraps right against the admin bar at the top and the
+   wp-admin sidebar on the left, so our brand chrome feels jammed
+   against system UI. Adding margin + radius around the root creates a
+   "Nexora panel" feel — clearly our surface, not part of wp-admin
+   itself, while still using the full available width.
+
+   Why we negate #wpbody-content padding rather than override the
+   #wpbody-content selector globally: wp-admin's CSS sets that padding
+   on every plugin page; touching it would break every other plugin.
+   Instead we apply a negative top-margin to slide our card up over
+   wp-admin's gutter, then re-apply our own consistent padding. */
+#wpbody-content:has(#nexora-engine-root) {
+  background: #F1F2F4; /* warm gray to peek around the rounded card */
+  padding-bottom: 24px;
+}
+#nexora-engine-root {
+  /* The panel-h variable is what the inner Layout uses for its sidebar
+     sticky height calc. Keeping it on the root lets us change the
+     gutter in one place. */
+  --ncx-panel-margin-top:    16px;
+  --ncx-panel-margin-bottom: 24px;
+  --ncx-panel-radius:        18px;
+  --ncx-panel-h: calc(100vh - 32px - var(--ncx-panel-margin-top) - var(--ncx-panel-margin-bottom));
+
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Bumped from 14px — easier to read without straining, still compact */
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--np-text-primary);
+  background: var(--np-bg-page);
+  /* Spacing around the panel so it doesn't touch the admin bar or
+     the wp-admin sidebar — the page now feels like an app card. */
+  margin: var(--ncx-panel-margin-top) 20px var(--ncx-panel-margin-bottom);
+  border-radius: var(--ncx-panel-radius);
+  /* IMPORTANT: NO overflow:hidden / clip-path here. Either one breaks
+     `position: sticky` on the dark sidebar so it scrolls away with the
+     content instead of following the user. Instead the children
+     (Layout sidebar + main area) each carry their own corner radius
+     below so the panel still looks rounded. */
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 8px 24px -12px rgb(15 23 42 / 0.10);
+  min-height: var(--ncx-panel-h);
+}
+/* The two outermost children of the root inherit the panel's rounded
+   corners on the side they touch. Together they form a single
+   rounded card without any overflow:hidden in the ancestor chain. */
+#nexora-engine-root > div > aside:first-child {
+  border-top-left-radius:    var(--ncx-panel-radius);
+  border-bottom-left-radius: var(--ncx-panel-radius);
+}
+#nexora-engine-root > div > main:last-child > aside:last-child {
+  border-top-right-radius:    var(--ncx-panel-radius);
+  border-bottom-right-radius: var(--ncx-panel-radius);
+}
+/* When there's no right-rail (e.g. wizard / bare layout), the main
+   itself gets the right corners. */
+#nexora-engine-root > div > main:last-child:not(:has(> aside)) {
+  border-top-right-radius:    var(--ncx-panel-radius);
+  border-bottom-right-radius: var(--ncx-panel-radius);
+}
+/* Mobile admin bar is 46px tall; collapsed wp sidebar shifts the
+   gutter calculations, so we tighten the margins below the wp breakpoint. */
+@media (max-width: 782px) {
+  #nexora-engine-root {
+    --ncx-panel-margin-top:    12px;
+    --ncx-panel-margin-bottom: 16px;
+    --ncx-panel-radius:        14px;
+    --ncx-panel-h: calc(100vh - 46px - 12px - 16px);
+    margin: 12px;
+  }
+}
+#nexora-engine-root [class*="text-[10px]"] {
+  font-size: 11px !important;
+}
+#nexora-engine-root .text-gray-400 {
+  color: #64748B !important;
+}
+#nexora-engine-root thead th {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
